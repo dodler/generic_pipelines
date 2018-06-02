@@ -5,8 +5,33 @@ import torch
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
-
+# todo add testing
 class FolderCachingDataset(object):
+
+    '''
+    assumes that there is a following folder structure
+    path
+        class1
+            img1
+            ...
+            imgn
+        class2
+            img1
+            ...
+            imgn
+        ...
+        classn
+            img1
+            ...
+            imgn
+
+    works in 2 modes:
+    train, validation
+    also performs automatic train-val split
+    uses Pillow for image reading
+    caches raw images
+    '''
+
     def __len__(self):
         if self.mode == 'train':
             return len(self.train_labels)
@@ -18,6 +43,12 @@ class FolderCachingDataset(object):
 
     def __init__(self, path, train_transform, val_transform):
         super().__init__()
+
+        if path is None or not osp.exists(path):
+            raise AttributeError('Broken path')
+
+        if train_transform is None or val_transform is None:
+            raise AttributeError('Broken transform')
 
         self.mode = 'train'
 
