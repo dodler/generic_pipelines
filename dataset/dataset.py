@@ -5,9 +5,34 @@ import torch
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
+
+class PillowReader(object):
+    def __call__(self, path):
+        t = Image.open(path)
+        img = t.copy()
+        t.close()
+        return img
+
+
+class DefaultClassProvider(object):
+    def __init__(self, path):
+        self.objs = []
+        self.lbls = []
+        for i, cls in enumerate(os.listdir(path)):
+            t = osp.join(path, cls, os.listdir(cls))
+            t = [v for v in t if v.endswith('.jpg')]
+            self.objs.extend(t)
+            self.lbls.extend([i] * len(t))
+
+    def __getitem__(self, item):
+        return self.objs[item], self.lbls[item]
+
+    def __len__(self):
+        return len(self.lbls)
+
+
 # todo add testing
 class FolderCachingDataset(object):
-
     '''
     assumes that there is a following folder structure
     path
@@ -41,27 +66,22 @@ class FolderCachingDataset(object):
     def setmode(self, mode):
         self.mode = mode
 
-    def __init__(self, path, train_transform, val_transform):
+    def __init__(self, train_transform, val_transform, path_class_provider=DefaultClassProvider(),
+                 reader=PillowReader()):
         super().__init__()
-
-        if path is None or not osp.exists(path):
-            raise AttributeError('Broken path')
 
         if train_transform is None or val_transform is None:
             raise AttributeError('Broken transform')
 
         self.mode = 'train'
-
-        self.path = path
-        self.classes = os.listdir(path)
+        self.reader = reader
+        self.classes = path_class_provider()
         images = []
         labels = []
 
-        for i, cls in enumerate(self.classes):
-            t = os.listdir(osp.join(path, cls))
-            t = list(map(lambda e: osp.join(path, cls, e), t))
-            images.extend(t)
-            labels.extend([i] * len(t))
+        for i, path, cls in enumerate(path_class_provider()):
+            images.append(path)
+            labels.append(cls)
 
         self.train, self.val, self.train_labels, self.val_labels = train_test_split(images, labels)
 
@@ -78,14 +98,12 @@ class FolderCachingDataset(object):
             return self.cache[k]
         else:
             if self.mode == 'train':
-                img = Image.open(self.train[index]).convert('RGB')
+                img = self.reader(self.train[index]).convert('RGB')
             else:
-                img = Image.open(self.val[index]).convert('RGB')
+                img = self.reader(self.val[index]).convert('RGB')
 
-        result = img.copy()
-        img.close()
-        self.cache[k] = result
-        return result
+        self.cache[k] = img
+        return img
 
     def __getitem__(self, index):
 
