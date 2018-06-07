@@ -66,7 +66,7 @@ class FolderCachingDataset(object):
     def setmode(self, mode):
         self.mode = mode
 
-    def __init__(self, train_transform, val_transform, path_class_provider=DefaultClassProvider(),
+    def __init__(self, train_transform, val_transform, path_class_provider,
                  reader=PillowReader()):
         super().__init__()
 
