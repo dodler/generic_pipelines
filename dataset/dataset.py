@@ -75,7 +75,6 @@ class FolderCachingDataset(object):
 
         self.mode = 'train'
         self.reader = reader
-        self.classes = path_class_provider()
         images = []
         labels = []
 
@@ -88,9 +87,6 @@ class FolderCachingDataset(object):
         self.train_transform = train_transform
         self.val_transform = val_transform
         self.cache = {}
-
-    def get_num_classes(self):
-        return len(self.classes)
 
     def get_img(self, index):
         k = str(index) + self.mode
