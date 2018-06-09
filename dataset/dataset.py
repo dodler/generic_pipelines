@@ -112,7 +112,7 @@ class FolderCachingDataset(object):
             label = self.val_labels[index]
             img = self.val_transform(img)
 
-        return img, torch.LongTensor([label])
+        return img, torch.FloatTensor([label])
 
 
 class HierarchicalDataset(object):
