@@ -18,6 +18,6 @@ def calc_accuracy(output, target, topk=(1,)):
 
 
 def mse(output, target):
-    y_true = target.cpu().squeeze().numpy()
-    y_pred = output.cpu().squeeze().numpy()
+    y_true = target.data.cpu().squeeze().numpy()
+    y_pred = output.data.cpu().squeeze().numpy()
     return mean_squared_error(y_true, y_pred)
