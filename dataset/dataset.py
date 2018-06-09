@@ -78,7 +78,7 @@ class FolderCachingDataset(object):
         images = []
         labels = []
 
-        for i, path, cls in enumerate(path_class_provider()):
+        for i, path, cls in enumerate(path_class_provider):
             images.append(path)
             labels.append(cls)
 
