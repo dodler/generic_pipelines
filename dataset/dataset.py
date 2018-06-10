@@ -108,6 +108,7 @@ class FolderCachingDataset(object):
             try:
                 img = self.get_img(index)
             except BaseException as e:
+                index += 1
                 print('failed', index, 'exception', e)
 
         if self.mode == 'train':
