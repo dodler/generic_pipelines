@@ -103,7 +103,12 @@ class FolderCachingDataset(object):
 
     def __getitem__(self, index):
 
-        img = self.get_img(index)
+        img = None
+        while img is None:
+            try:
+                img = self.get_img(index)
+            except BaseException as e:
+                print('failed', index, 'exception', e)
 
         if self.mode == 'train':
             label = self.train_labels[index]
