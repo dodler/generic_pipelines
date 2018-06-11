@@ -4,6 +4,7 @@ import time
 import torch
 from torch.autograd import Variable
 
+from generic_utils.output_watchers import ClassificationWatcher
 from generic_utils.utils import AverageMeter
 from generic_utils.utils import VisdomValueWatcher
 
@@ -24,6 +25,10 @@ class Trainer(object):
         self.metric = metric
         self.criterion = criterion
         self.watcher = VisdomValueWatcher(watcher_env)
+        self.output_watcher = ClassificationWatcher(self.watcher)
+
+    def set_output_watcher(self, output_watcher):
+        self.output_watcher = output_watcher
 
     def get_watcher(self):
         return self.watcher
@@ -54,7 +59,7 @@ class Trainer(object):
 
             # measure accuracy and record loss
             losses.update(loss.data[0], input.size(0))
-            self.watcher.display_prediction_distribution(output)
+            self.output_watcher(output)
 
             metric_val = self.metric(output, target_var.view(-1))
             acc.update(metric_val)
@@ -107,7 +112,7 @@ class Trainer(object):
 
             losses.update(loss.data[0], input.size(0))
 
-            self.watcher.display_prediction_distribution(output)
+            self.output_watcher(output)
 
             metric_val = self.metric(output, target_var.view(-1)) # todo - add output dimention assertion
             acc.update(metric_val, batch_idx)

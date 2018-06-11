@@ -133,16 +133,6 @@ class VisdomValueWatcher(object):
             return
         self.display_hist_and_add(numpy, key, title='labels distribution')
 
-    def display_prediction_distribution(self, output):
-        key = 'prediction_distribution'
-        _, pred_classes = output.max(1)
-        if pred_classes is not torch.Tensor:
-            if len(pred_classes) <= 1:
-                return
-            self.display_hist_and_add(pred_classes.view(-1).cpu().data.numpy(), key,
-                                      title='prediction labels distribution')
-        else:
-            self.display_hist_and_add(pred_classes, key, 'prediction labels distribution')
 
     def display_most_confident_error(self, iter_num, img_batch, gt, batch_probs):
         if iter_num % 10 == 0:
