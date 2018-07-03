@@ -55,7 +55,7 @@ class Trainer(object):
 
             output = model(input_var)
 
-            loss = self.criterion(output, target_var.view(-1))
+            loss = self.criterion(output.view(-1), target_var.view(-1))
 
             # measure accuracy and record loss
             losses.update(loss.data[0], input.size(0))
@@ -100,7 +100,7 @@ class Trainer(object):
 
             optimizer.zero_grad()
             output = model(input_var)
-            loss = self.criterion(output, target_var.view(-1))
+            loss = self.criterion(output.view(-1), target_var.view(-1))
 
             loss.backward()
             optimizer.step()
