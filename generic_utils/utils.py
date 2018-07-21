@@ -21,8 +21,6 @@ def make_weights_for_balanced_classes(images, nclasses):
     return weight
 
 
-
-
 def ocv2torch(img):
     '''
     bgr opencv image
@@ -44,7 +42,7 @@ class TensorToOCV(object):
         :param tensor:
         :return:
         '''
-        return cv2.cvtColor(tensor.data.numpy(), cv2.COLOR_RGB2BGR) # todo replace with permute
+        return cv2.cvtColor(tensor.data.numpy(), cv2.COLOR_RGB2BGR)  # todo replace with permute
 
 
 class OCVResize(object):
@@ -73,8 +71,8 @@ class OCVRandomCrop(object):
         :param img:
         :return:
         '''
-        s_w = random.randint(0, min(img.shape[0],self.crop_w))
-        s_h = random.randint(0, min(img.shape[1],self.crop_h))
+        s_w = random.randint(0, min(img.shape[0], self.crop_w))
+        s_h = random.randint(0, min(img.shape[1], self.crop_h))
         return img[s_w:s_w + self.crop_w, s_h:s_h + self.crop_h, :]
 
 
@@ -132,7 +130,6 @@ class VisdomValueWatcher(object):
         if len(numpy) == 1:
             return
         self.display_hist_and_add(numpy, key, title='labels distribution')
-
 
     def display_most_confident_error(self, iter_num, img_batch, gt, batch_probs):
         if iter_num % 10 == 0:

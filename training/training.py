@@ -5,8 +5,8 @@ import torch
 from torch.autograd import Variable
 
 from generic_utils.output_watchers import ClassificationWatcher
-from generic_utils.utils import AverageMeter
-from generic_utils.utils import VisdomValueWatcher
+from generic_utils.segmentation import AverageMeter
+from generic_utils.segmentation import VisdomValueWatcher
 
 VAL_LOSS = 'val loss'
 VAL_ACC = 'val acc'
