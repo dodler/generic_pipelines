@@ -27,3 +27,6 @@ class RegressionWatcher(object):
                                       title='regression prediction distribution')
         else:
             self.watcher.display_hist_and_add(output, key, 'regression prediction distribution')
+
+class SegmentationWatcher(object):
+    pass

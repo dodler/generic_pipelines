@@ -8,11 +8,12 @@ class DualToTensor(object):
         img_tensor = torch.from_numpy(img[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1)
         return img_tensor, torch.ByteTensor(mask.astype(np.int))
 
+
 class DualImgsToTensor(object):
     def __call__(self, img1, img2):
         img_tensor_1 = torch.from_numpy(img1[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1)
         img_tensor_2 = torch.from_numpy(img2[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1)
-        return img_tensor_1,img_tensor_2
+        return img_tensor_1, img_tensor_2
 
 
 class DualResize(object):

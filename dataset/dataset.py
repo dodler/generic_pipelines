@@ -1,17 +1,11 @@
 import os
-
+import cv2
 import os.path as osp
 import torch
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
-
-class PillowReader(object):
-    def __call__(self, path):
-        t = Image.open(path)
-        img = t.copy()
-        t.close()
-        return img
+from reader.image_reader import PillowReader
 
 
 class DefaultClassProvider(object):
