@@ -1,4 +1,4 @@
-import Image
+from PIL import Image
 import cv2
 
 class PillowReader(object):
@@ -11,4 +11,4 @@ class PillowReader(object):
 
 class OpencvReader(object):
     def __call__(self, path):
-        return cv2.imread(path)
+        return cv2.imread(path) / 255.0

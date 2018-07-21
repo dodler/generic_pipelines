@@ -1,7 +1,7 @@
 from torch import nn
 import torch
-from torchvision import models
 import torchvision
+from torchvision import models
 from torch.nn import functional as F
 
 
