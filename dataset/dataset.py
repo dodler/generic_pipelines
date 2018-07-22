@@ -1,23 +1,17 @@
-import os
-
-import os.path as osp
-import torch
-from sklearn.model_selection import train_test_split
 from abc import abstractmethod
+
+from sklearn.model_selection import train_test_split
+
 from reader.image_reader import PillowReader
 
 
 # todo add testing
 class GenericXYDataset(object):
 
-    def __init__(self, x_train_transform, x_val_transform,
-                 y_train_transform, y_val_transform,
+    def __init__(self, transform,
                  xy_paths_provider,
                  x_reader=PillowReader(), y_reader=PillowReader()):
         super().__init__()
-
-        if x_train_transform is None or x_val_transform is None:
-            raise AttributeError('Broken transform')
 
         self.mode = 'train'
         self.reader = x_reader
@@ -30,10 +24,7 @@ class GenericXYDataset(object):
 
         self.train_x, self.val_x, self.train_y, self.val_y = train_test_split(X, y)
 
-        self.x_train_transform = x_train_transform
-        self.x_val_transform = x_val_transform
-        self.y_train_transform = y_train_transform
-        self.y_val_transform = y_val_transform
+        self.transform = transform
         self.x_cache = {}
         self.y_cache = {}
 
@@ -54,12 +45,6 @@ class GenericXYDataset(object):
     def read_y(self, index):
         pass
 
-    def select_transform(self):
-        if self.mode == 'train':
-            return self.x_train_transform, self.y_train_transform
-        else:
-            return self.x_val_transform, self.y_val_transform
-
     def fetch_cache(self, index):
         key = self.mode + str(index)
         return self.x_cache[key], self.y_cache[key]
@@ -77,7 +62,5 @@ class GenericXYDataset(object):
             y = self.read_y(index)
             self.put_cache(index, X,y)
 
-        x_transform, y_transform = self.select_transform()
-
-        return x_transform(X), y_transform(y)
+        return self.transform(X,y, self.mode)
 
