@@ -5,7 +5,8 @@ import torch
 from torch.autograd import Variable
 
 from generic_utils.output_watchers import ClassificationWatcher
-from generic_utils.utils import VisdomValueWatcher, AverageMeter
+from generic_utils.utils import AverageMeter
+from generic_utils.visualization.visualization import VisdomValueWatcher
 
 VAL_LOSS = 'val loss'
 VAL_ACC = 'val acc'
@@ -25,6 +26,7 @@ class Trainer(object):
         self.criterion = criterion
         self.watcher = VisdomValueWatcher(watcher_env)
         self.output_watcher = ClassificationWatcher(self.watcher)
+
 
     def set_output_watcher(self, output_watcher):
         self.output_watcher = output_watcher
