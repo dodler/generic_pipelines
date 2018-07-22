@@ -30,7 +30,7 @@ def iou(pred, target, n_classes=1):
     inter = (pred_t * target).sum()
     union = (pred_t + target).sum()
 
-    return (inter / union).cpu().data[0];
+    return (inter / union).cpu().item();
 
 
 

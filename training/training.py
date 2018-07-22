@@ -75,7 +75,7 @@ class Trainer(object):
             print('\rValidation: [{0}/{1}]\t'
                   'ETA: {time:.0f}/{eta:.0f} s\t'
                   'loss {loss.avg:.4f}\t'
-                  'accuracy {acc.avg:.4f}\t'.format(
+                  'metric {acc.avg:.4f}\t'.format(
                 batch_idx, len(val_loader), eta=batch_time.avg * len(val_loader),
                 time=batch_time.sum, loss=losses, acc=acc), end='')
         print()
