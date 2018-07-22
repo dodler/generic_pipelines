@@ -104,8 +104,8 @@ class Trainer(object):
             loss.backward()
             optimizer.step()
 
-            self.watcher.display_labels_hist(target_var)
-            self.watcher.display_most_confident_error(batch_idx, input_var, target_var, output)
+            # self.watcher.display_labels_hist(target_var)
+            # self.watcher.display_most_confident_error(batch_idx, input_var, target_var, output)
 
             # measure accuracy and record loss
 
