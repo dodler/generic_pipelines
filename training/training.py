@@ -68,7 +68,7 @@ class Trainer(object):
             self.watcher.log_value(VAL_ACC, metric_val)
             self.watcher.log_value(VAL_LOSS, loss.detach())
 
-            self.watcher.display_every_iter(batch_idx, input_var, target, output, 'validation')
+            self.watcher.display_every_iter(batch_idx, input_var, target, output)
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -121,7 +121,7 @@ class Trainer(object):
             self.watcher.log_value(TRAIN_ACC_OUT, metric_val)
             self.watcher.log_value(TRAIN_LOSS_OUT, loss.detach())
 
-            self.watcher.display_every_iter(batch_idx, input_var, target, output, 'train')
+            self.watcher.display_every_iter(batch_idx, input_var, target, output)
 
             # measure elapsed time
             batch_time.update(time.time() - end)
