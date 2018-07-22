@@ -57,14 +57,14 @@ class Trainer(object):
             loss = self.criterion(output.view(-1), target_var.view(-1))
 
             # measure accuracy and record loss
-            losses.update(loss.data[0], input.size(0))
+            losses.update(loss.detach(), input.size(0))
             self.output_watcher(output)
 
             metric_val = self.metric(output, target_var.view(-1))
             acc.update(metric_val)
 
             self.watcher.log_value(VAL_ACC, metric_val)
-            self.watcher.log_value(VAL_LOSS, loss.data[0])
+            self.watcher.log_value(VAL_LOSS, loss.detach())
 
             self.watcher.display_every_iter(batch_idx, input_var, target, output, 'validation')
 
@@ -109,7 +109,7 @@ class Trainer(object):
 
             # measure accuracy and record loss
 
-            losses.update(loss.data[0], input.size(0))
+            losses.update(loss.detach(), input.size(0))
 
             self.output_watcher(output)
 
@@ -117,7 +117,7 @@ class Trainer(object):
             acc.update(metric_val, batch_idx)
 
             self.watcher.log_value(TRAIN_ACC_OUT, metric_val)
-            self.watcher.log_value(TRAIN_LOSS_OUT, loss.data[0])
+            self.watcher.log_value(TRAIN_LOSS_OUT, loss.detach())
 
             self.watcher.display_every_iter(batch_idx, input_var, target, output, 'train')
 
@@ -129,7 +129,7 @@ class Trainer(object):
                   'ETA: {time:.0f}/{eta:.0f} s\t'
                   'data loading: {data_time.val:.3f} s\t'
                   'loss {loss.avg:.4f}\t'
-                  'accuracy {acc.avg:.4f}\t'.format(
+                  'metric {acc.avg:.4f}\t'.format(
                 epoch, batch_idx, len(train_loader), eta=batch_time.avg * len(train_loader),
                 time=batch_time.sum, data_time=data_time, loss=losses, acc=acc), end='')
         return losses.avg, acc.avg
