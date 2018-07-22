@@ -21,6 +21,7 @@ class VisdomValueWatcher(object):
         self.prediction_watcher = prediction_watcher
 
         self.wins = {}
+        self.every_iter_n = 10
 
     def display_and_add(self, img, title, key=None):
         if key is None:
@@ -90,7 +91,7 @@ class VisdomValueWatcher(object):
             self.display_and_add(img, title, key)
 
     def display_every_iter(self, iter_num, X, y, prediction):
-        if iter_num % iter_num == 0:
+        if iter_num%  self.every_iter_n == 0:
             self.display_and_add(self.in_x_watcher(X), 'source x', 'x')
             self.display_and_add(self.in_y_watcher(y), 'source y', 'y')
             self.display_and_add(self.prediction_watcher(prediction),'prediction', 'pred')
