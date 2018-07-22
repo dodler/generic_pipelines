@@ -14,7 +14,8 @@ class GenericXYDataset(object):
         super().__init__()
 
         self.mode = 'train'
-        self.reader = x_reader
+        self.x_reader = x_reader
+        self.y_reader = y_reader
         X = []
         y = []
 
@@ -54,13 +55,16 @@ class GenericXYDataset(object):
         self.x_cache[key] = X
         self.y_cache[key] = y
 
+    def in_cache(self, index):
+        key = self.mode + str(index)
+        return key in self.x_cache.keys() and key in self.y_cache.keys()
+
     def __getitem__(self, index):
         if self.in_cache(index):
-            X,y = self.fetch_cache(index)
+            X, y = self.fetch_cache(index)
         else:
             X = self.read_x(index)
             y = self.read_y(index)
-            self.put_cache(index, X,y)
+            self.put_cache(index, X, y)
 
-        return self.transform(X,y, self.mode)
-
+        return self.transform(X, y, self.mode)
