@@ -4,7 +4,7 @@ import random
 import cv2
 from PIL import Image
 
-from segmentation.utils.abstract import DualTransformer
+from generic_utils.segmentation.abstract import DualTransformer
 
 
 class DualPad(DualTransformer):
