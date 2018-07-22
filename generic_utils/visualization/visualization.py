@@ -1,4 +1,4 @@
-
+import numpy as np
 import visdom
 from torch.autograd import Variable
 
