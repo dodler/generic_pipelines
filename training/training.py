@@ -61,7 +61,6 @@ class Trainer(object):
 
             # measure accuracy and record loss
             losses.update(loss.detach(), input.size(0))
-            self.output_watcher(output)
 
             metric_val = self.metric(output, target_var)
             acc.update(metric_val)
