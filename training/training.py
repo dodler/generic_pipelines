@@ -9,8 +9,8 @@ from generic_utils.utils import AverageMeter
 from generic_utils.visualization.visualization import VisdomValueWatcher
 
 VAL_LOSS = 'val loss'
-VAL_ACC = 'val acc'
-TRAIN_ACC_OUT = 'train acc'
+VAL_ACC = 'val metric'
+TRAIN_ACC_OUT = 'train metric'
 TRAIN_LOSS_OUT = 'train loss'
 
 
@@ -51,8 +51,9 @@ class Trainer(object):
 
         end = time.time()
         for batch_idx, (input, target) in enumerate(val_loader):
-            input_var = Variable(input.cuda(), volatile=True)
-            target_var = Variable(target.cuda(), volatile=True)
+            with torch.no_grad():
+                input_var = Variable(input.cuda())
+                target_var = Variable(target.cuda())
 
             output = model(input_var)
 
@@ -62,7 +63,7 @@ class Trainer(object):
             losses.update(loss.detach(), input.size(0))
             self.output_watcher(output)
 
-            metric_val = self.metric(output, target_var.view(-1))
+            metric_val = self.metric(output, target_var)
             acc.update(metric_val)
 
             self.watcher.log_value(VAL_ACC, metric_val)
@@ -115,7 +116,7 @@ class Trainer(object):
 
             self.output_watcher(output)
 
-            metric_val = self.metric(output, target_var.view(-1)) # todo - add output dimention assertion
+            metric_val = self.metric(output, target_var) # todo - add output dimention assertion
             acc.update(metric_val, batch_idx)
 
             self.watcher.log_value(TRAIN_ACC_OUT, metric_val)
