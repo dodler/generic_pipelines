@@ -61,6 +61,8 @@ class Trainer(object):
 
             loss = self.criterion(output.view(-1), target_var.view(-1))
 
+            self.scheduler.step(loss)
+
             # measure accuracy and record loss
             losses.update(loss.detach(), input.size(0))
 
