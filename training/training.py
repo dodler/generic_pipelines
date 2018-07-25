@@ -61,8 +61,6 @@ class Trainer(object):
 
             loss = self.criterion(output.view(-1), target_var.view(-1))
 
-            self.scheduler.step(loss)
-
             # measure accuracy and record loss
             losses.update(loss.detach(), input.size(0))
 
@@ -85,6 +83,7 @@ class Trainer(object):
                 batch_idx, len(val_loader), eta=batch_time.avg * len(val_loader),
                 time=batch_time.sum, loss=losses, acc=acc), end='')
         print()
+        self.scheduler.step(losses.avg)
         return losses.avg, acc.avg
 
     def train(self, train_loader, model, epoch):
