@@ -112,8 +112,6 @@ class Trainer(object):
 
             losses.update(loss.detach(), input.size(0))
 
-            self.output_watcher(output)
-
             metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
             acc.update(metric_val, batch_idx)
 
