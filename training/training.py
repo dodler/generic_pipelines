@@ -3,6 +3,7 @@ import time
 
 import torch
 from torch.autograd import Variable
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from generic_utils.output_watchers import ClassificationWatcher
 from generic_utils.utils import AverageMeter
@@ -16,7 +17,7 @@ TRAIN_LOSS_OUT = 'train loss'
 
 class Trainer(object):
 
-    def __init__(self, watcher_env, criterion, metric):
+    def __init__(self, watcher_env, criterion, metric, optimizer):
         '''
 
         :param watcher_env: environment for visdom
@@ -26,7 +27,8 @@ class Trainer(object):
         self.criterion = criterion
         self.watcher = VisdomValueWatcher(watcher_env)
         self.output_watcher = ClassificationWatcher(self.watcher)
-
+        self.optimizer = optimizer
+        self.scheduler = ReduceLROnPlateau(optimizer, 'min')
 
     def set_output_watcher(self, output_watcher):
         self.output_watcher = output_watcher
@@ -83,7 +85,7 @@ class Trainer(object):
         print()
         return losses.avg, acc.avg
 
-    def train(self, train_loader, model, optimizer, epoch):
+    def train(self, train_loader, model, epoch):
         batch_time = AverageMeter()
         data_time = AverageMeter()
         losses = AverageMeter()
@@ -99,23 +101,18 @@ class Trainer(object):
             input_var = torch.autograd.Variable(input.cuda())
             target_var = torch.autograd.Variable(target.cuda())
 
-            optimizer.zero_grad()
+            self.optimizer.zero_grad()
             output = model(input_var)
             loss = self.criterion(output.view(-1), target_var.view(-1))
 
             loss.backward()
-            optimizer.step()
-
-            # self.watcher.display_labels_hist(target_var)
-            # self.watcher.display_most_confident_error(batch_idx, input_var, target_var, output)
-
-            # measure accuracy and record loss
+            self.optimizer.step()
 
             losses.update(loss.detach(), input.size(0))
 
             self.output_watcher(output)
 
-            metric_val = self.metric(output, target_var) # todo - add output dimention assertion
+            metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
             acc.update(metric_val, batch_idx)
 
             self.watcher.log_value(TRAIN_ACC_OUT, metric_val)
