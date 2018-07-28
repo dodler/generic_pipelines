@@ -1,5 +1,6 @@
 import shutil
 import time
+import numpy as np
 
 import torch
 from torch.autograd import Variable
@@ -29,6 +30,7 @@ class Trainer(object):
         self.output_watcher = ClassificationWatcher(self.watcher)
         self.optimizer = optimizer
         self.scheduler = ReduceLROnPlateau(optimizer, 'min')
+        self.best_loss = np.inf
 
     def set_output_watcher(self, output_watcher):
         self.output_watcher = output_watcher
@@ -36,12 +38,19 @@ class Trainer(object):
     def get_watcher(self):
         return self.watcher
 
-    def save_checkpoint(self, state, is_best, epoch, loss, filename='checkpoint_{}_loss_{}.pth.tar'):
-        _filename = filename.format(epoch, loss)
-        print('Save model at epoch {epoch} in {file}'.format(epoch=epoch + 1, file=_filename))
-        torch.save(state, _filename)
-        if is_best:
-            shutil.copyfile(_filename, 'model_best.pth.tar')
+    def save_checkpoint(self, state, name):
+        print('saving state at', name)
+        torch.save(state, name)
+
+    def get_checkpoint_name(self, loss):
+        return self.model_name + '_loss_' + str(loss) + '.pth.tar'
+
+    def is_best(self, avg_loss):
+        best = avg_loss < self.best_loss
+        if best:
+            self.best_loss = avg_loss
+
+        return best
 
     def validate(self, val_loader, model):
         batch_time = AverageMeter()
@@ -69,7 +78,6 @@ class Trainer(object):
 
             self.watcher.log_value(VAL_ACC, metric_val)
             self.watcher.log_value(VAL_LOSS, loss.detach())
-
             self.watcher.display_every_iter(batch_idx, input_var, target, output)
 
             # measure elapsed time
@@ -84,6 +92,10 @@ class Trainer(object):
                 time=batch_time.sum, loss=losses, acc=acc), end='')
         print()
         self.scheduler.step(losses.avg)
+
+        if self.is_best(losses.avg):
+            self.save_checkpoint(model.get_state_dict(), self.get_checkpoint_name(losses.avg))
+
         return losses.avg, acc.avg
 
     def train(self, train_loader, model, epoch):
@@ -116,7 +128,6 @@ class Trainer(object):
 
             self.watcher.log_value(TRAIN_ACC_OUT, metric_val)
             self.watcher.log_value(TRAIN_LOSS_OUT, loss.detach())
-
             self.watcher.display_every_iter(batch_idx, input_var, target, output)
 
             # measure elapsed time
