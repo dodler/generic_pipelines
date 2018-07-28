@@ -18,7 +18,7 @@ TRAIN_LOSS_OUT = 'train loss'
 
 class Trainer(object):
 
-    def __init__(self, watcher_env, criterion, metric, optimizer):
+    def __init__(self, watcher_env, criterion, metric, optimizer, model_name):
         '''
 
         :param watcher_env: environment for visdom
@@ -31,6 +31,7 @@ class Trainer(object):
         self.optimizer = optimizer
         self.scheduler = ReduceLROnPlateau(optimizer, 'min')
         self.best_loss = np.inf
+        self.model_name = model_name
 
     def set_output_watcher(self, output_watcher):
         self.output_watcher = output_watcher
