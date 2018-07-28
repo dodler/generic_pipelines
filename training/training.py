@@ -95,7 +95,7 @@ class Trainer(object):
         self.scheduler.step(losses.avg)
 
         if self.is_best(losses.avg):
-            self.save_checkpoint(model.get_state_dict(), self.get_checkpoint_name(losses.avg))
+            self.save_checkpoint(model.state_dict(), self.get_checkpoint_name(losses.avg))
 
         return losses.avg, acc.avg
 
