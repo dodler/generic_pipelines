@@ -44,7 +44,7 @@ class Trainer(object):
         torch.save(state, name)
 
     def get_checkpoint_name(self, loss):
-        return self.model_name + '_loss_' + str(loss) + '.pth.tar'
+        return self.model_name + '_loss_' + str(loss.detach().cpu().numpy()) + '.pth.tar'
 
     def is_best(self, avg_loss):
         best = avg_loss < self.best_loss
