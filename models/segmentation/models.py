@@ -391,4 +391,6 @@ class UNet(nn.Module):
             x_out = self.conv_final(x_out)
             if self.num_classes > 1:
                 x_out = F.log_softmax(x_out, dim=1)
+            else:
+                x_out = F.sigmoid(x_out)
         return x_out
