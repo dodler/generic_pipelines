@@ -111,8 +111,6 @@ class Trainer(object):
         end = time.time()
         for batch_idx, (input, target) in enumerate(train_loader):
 
-            print(input.size(), target.size())
-
             data_time.update(time.time() - end)
 
             input_var = torch.autograd.Variable(input.cuda())
