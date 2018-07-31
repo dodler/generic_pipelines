@@ -89,9 +89,6 @@ class Gamma(object):
 
     def gamma(self, img, gamma):
         b, g, r = cv2.split(img)
-        b = b.astype(np.float) / 255.0
-        g = g.astype(np.float) / 255.0
-        r = r.astype(np.float) / 255.0
         b = (np.power(b, 1.0 / gamma) * 255).astype(np.uint8)
         g = (np.power(g, 1.0 / gamma) * 255).astype(np.uint8)
         r = (np.power(r, 1.0 / gamma) * 255).astype(np.uint8)
