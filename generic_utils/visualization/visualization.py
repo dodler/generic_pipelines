@@ -94,7 +94,7 @@ class VisdomValueWatcher(object):
 
     def display_every_iter(self, iter_num, X, y, prediction):
         if iter_num%  self.every_iter_n == 0:
-            index = random.randint(0, X.size()[0])
+            index = random.randint(0, X.size()[0]-1)
             self.display_and_add(self.in_x_watcher(X, index), 'source x', 'x')
             self.display_and_add(self.in_y_watcher(y, index), 'source y', 'y')
             self.display_and_add(self.prediction_watcher(prediction, index),'prediction', 'pred')
