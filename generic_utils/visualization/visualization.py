@@ -1,14 +1,16 @@
+import random
+
 import numpy as np
 import visdom
 from torch.autograd import Variable
 
-from generic_utils.visualization.visdom import FirstImage
+from generic_utils.visualization.visdom import FirstImage, ImageByIndex
 
 
 class VisdomValueWatcher(object):
     def __init__(self, env_name='main',
-                 in_x_watcher = FirstImage(), in_y_watcher=FirstImage(),
-                 prediction_watcher=FirstImage()):
+                 in_x_watcher = ImageByIndex(), in_y_watcher=ImageByIndex(),
+                 prediction_watcher=ImageByIndex()):
         self._watchers = {}
         self._wins = {}
         self._vis = visdom.Visdom(env=env_name)
@@ -92,9 +94,10 @@ class VisdomValueWatcher(object):
 
     def display_every_iter(self, iter_num, X, y, prediction):
         if iter_num%  self.every_iter_n == 0:
-            self.display_and_add(self.in_x_watcher(X), 'source x', 'x')
-            self.display_and_add(self.in_y_watcher(y), 'source y', 'y')
-            self.display_and_add(self.prediction_watcher(prediction),'prediction', 'pred')
+            index = random.randint(0, X.size()[0])
+            self.display_and_add(self.in_x_watcher(X, index), 'source x', 'x')
+            self.display_and_add(self.in_y_watcher(y, index), 'source y', 'y')
+            self.display_and_add(self.prediction_watcher(prediction, index),'prediction', 'pred')
 
     def get_vis(self):
         return self._vis
