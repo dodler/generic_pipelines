@@ -25,7 +25,7 @@ def ocv2torch(img):
     :param img:
     :return:
     '''
-    return torch.from_numpy(img[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1)
+    return torch.from_numpy(img[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1) / 255.0
 
 
 class OCVTensor(object):
