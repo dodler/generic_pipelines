@@ -46,6 +46,10 @@ class Grayscale(object):
         return outputs if idx > 1 else outputs[0]
 
 
+class OCVGrayscale(object):
+    def __call__(self, img):
+        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
 class Brightness(object):
     def __init__(self, value):
         """
