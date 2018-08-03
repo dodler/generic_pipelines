@@ -70,6 +70,11 @@ class Brightness(object):
         return outputs if idx > 1 else outputs[0]
 
 
+class SingleChannelGamma(object):
+    def __call__(self, gamma, arr):
+        return (np.power(arr, 1.0 / gamma) * 255).astype(np.uint8)
+
+
 class Gamma(object):
     def __init__(self, value):
         """
@@ -86,12 +91,13 @@ class Gamma(object):
             >1 : image will tend to be darker
         """
         self.value = value
+        self.single_channel_gamma = SingleChannelGamma()
 
     def gamma(self, img, gamma):
         b, g, r = cv2.split(img)
-        b = (np.power(b, 1.0 / gamma) * 255).astype(np.uint8)
-        g = (np.power(g, 1.0 / gamma) * 255).astype(np.uint8)
-        r = (np.power(r, 1.0 / gamma) * 255).astype(np.uint8)
+        b = self.single_channel_gamma(gamma, b)
+        g = self.single_channel_gamma(gamma, g)
+        r = self.single_channel_gamma(gamma, r)
         return cv2.merge([b, g, r])
 
     def __call__(self, *inputs):
