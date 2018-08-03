@@ -11,7 +11,7 @@ class DualToTensor(object):
 
 class DualSingleChannelToTensor(object):
     def __call__(self, gray_image, mask):
-        return torch.FLoatTensor(gray_image), torch.FloatTensor(mask)
+        return torch.FloatTensor(gray_image), torch.FloatTensor(mask)
 
 
 class DualBGRToTensor(object):
