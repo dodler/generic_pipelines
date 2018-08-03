@@ -182,6 +182,29 @@ class RandomBrightness(object):
         return outputs
 
 
+class RandomSingleChannelGamma(object):
+    def __init__(self, min_val, max_val):
+        """
+        Performs Gamma Correction on the input image with some
+        randomly selected gamma value between min_val and max_val.
+        Also known as Power Law Transform. This function transforms
+        the input image pixelwise according to the equation
+        Out = In**gamma after scaling each pixel to the range 0 to 1.
+        Arguments
+        ---------
+        min_val : float
+            min range
+        max_val : float
+            max range
+        """
+        self.values = (min_val, max_val)
+
+    def __call__(self, *inputs):
+        value = random.uniform(self.values[0], self.values[1])
+        outputs = SingleChannelGamma(value)(*inputs)
+        return outputs
+
+
 class RandomGamma(object):
     def __init__(self, min_val, max_val):
         """
