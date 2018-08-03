@@ -9,12 +9,12 @@ class DualToTensor(object):
         return img_tensor, torch.FloatTensor(mask.astype(np.int))
 
 
-class GrayImageMaskToTorch(object):
+class DualSingleChannelToTensor(object):
     def __call__(self, gray_image, mask):
         return torch.FLoatTensor(gray_image), torch.FloatTensor(mask)
 
 
-class DualImgsToTensor(object):
+class DualBGRToTensor(object):
     def __call__(self, img1, img2):
         img_tensor_1 = torch.from_numpy(img1[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1)
         img_tensor_2 = torch.from_numpy(img2[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1)
