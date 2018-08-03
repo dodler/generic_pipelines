@@ -64,8 +64,8 @@ class Trainer(object):
         end = time.time()
         for batch_idx, (input, target) in enumerate(val_loader):
             with torch.no_grad():
-                input_var = Variable(input.cuda())
-                target_var = Variable(target.cuda())
+                input_var = Variable(input.to(self.device))
+                target_var = Variable(target.to(self.device))
 
             output = model(input_var)
 
@@ -113,8 +113,8 @@ class Trainer(object):
 
             data_time.update(time.time() - end)
 
-            input_var = torch.autograd.Variable(input.cuda())
-            target_var = torch.autograd.Variable(target.cuda())
+            input_var = torch.autograd.Variable(input.to(self.device))
+            target_var = torch.autograd.Variable(target.to(self.device))
 
             self.optimizer.zero_grad()
             output = model(input_var)
