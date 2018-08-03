@@ -14,13 +14,14 @@ class DualPad(DualTransformer):
 
     def transform(self, img, how):
         p = self.padding
-        return cv2.copyMakeBorder(img, p, p, p, p, cv2.BORDER_REFLECT_101)
+        return cv2.copyMakeBorder(img, p, p, p, p, cv2.BORDER_CONSTANT, value=[0, 0, 0])
 
 
 class DualCrop(DualTransformer):
     '''
     random crop for squared images and masks
     '''
+
     def __init__(self, size):
         self.size = size
         super().__init__()
@@ -29,7 +30,7 @@ class DualCrop(DualTransformer):
         if random.random() > 0.5:
             x = random.randint(0, img.shape[0] - self.size)
             y = random.randint(0, img.shape[0] - self.size)
-            return img[x:(x+self.size), y:(y+self.size),:], msk[x:(x+self.size), y:(y+self.size)]
+            return img[x:(x + self.size), y:(y + self.size), :], msk[x:(x + self.size), y:(y + self.size)]
         else:
             return img, msk
 
