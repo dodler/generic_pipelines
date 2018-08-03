@@ -11,4 +11,4 @@ class PillowReader(object):
 
 class OpencvReader(object):
     def __call__(self, path):
-        return cv2.imread(path) / 255.0
+        return cv2.imread(path)
