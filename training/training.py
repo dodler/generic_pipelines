@@ -33,6 +33,7 @@ class Trainer(object):
         self.best_loss = np.inf
         self.model_name = model_name
         self.device = device
+        self.epoch_num = 0
 
     def set_output_watcher(self, output_watcher):
         self.output_watcher = output_watcher
@@ -95,9 +96,10 @@ class Trainer(object):
         print()
         self.scheduler.step(losses.avg)
 
-        if self.is_best(losses.avg):
+        if self.is_best(losses.avg) and self.epoch_num % 10 == 0:
             self.save_checkpoint(model.state_dict(), self.get_checkpoint_name(losses.avg))
 
+        self.epoch_num += 1
         return losses.avg, acc.avg
 
     def train(self, train_loader, model, epoch):
