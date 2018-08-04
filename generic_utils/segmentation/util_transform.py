@@ -5,7 +5,7 @@ import torch
 
 class DualToTensor(object):
     def __call__(self, img, mask):
-        img_tensor = torch.from_numpy(img[:, :, (2, 1, 0)].astype(np.float32)).permute(2, 0, 1)
+        img_tensor = torch.from_numpy(img[:, :, (2, 1, 0)].astype(np.float32)/255.0).permute(2, 0, 1)
         return img_tensor, torch.FloatTensor(mask.astype(np.int))
 
 
