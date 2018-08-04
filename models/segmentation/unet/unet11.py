@@ -2,6 +2,8 @@ import torch.nn as nn
 from torchvision import models
 import torch
 from models.segmentation.unet import DecoderBlock, ConvRelu
+import torch.nn.functional as F
+
 
 
 class UNet11(nn.Module):
