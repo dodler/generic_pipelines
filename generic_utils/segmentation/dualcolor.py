@@ -204,10 +204,9 @@ class RandomSingleChannelGamma(object):
         """
         self.values = (min_val, max_val)
 
-    def __call__(self, *inputs):
+    def __call__(self, img):
         value = random.uniform(self.values[0], self.values[1])
-        outputs = SingleChannelGamma(value)(*inputs)
-        return outputs
+        return SingleChannelGamma(value)(img)
 
 
 class RandomGamma(object):
