@@ -100,7 +100,7 @@ class Gamma(object):
             >1 : image will tend to be darker
         """
         self.value = value
-        self.single_channel_gamma = SingleChannelGamma()
+        self.single_channel_gamma = SingleChannelGamma(value)
 
     def gamma(self, img):
         b, g, r = cv2.split(img)
