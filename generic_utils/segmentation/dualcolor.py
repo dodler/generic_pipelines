@@ -49,7 +49,7 @@ class Grayscale(object):
 class OCVGrayscale(object):
     def __call__(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gray = gray[...,np.newaxis]
+        gray = gray[np.newaxis,...]
         return gray
 
 class Brightness(object):
