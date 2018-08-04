@@ -4,10 +4,8 @@
 #
 
 import torch
-import torch.nn.functional as F
-
+from torch.autograd import Function
 from torch.nn.modules.loss import _Loss
-from torch.autograd import Function, Variable
 
 
 class DiceCoeff(Function):
@@ -54,20 +52,8 @@ def dice_loss(input, target):
               (iflat.sum() + tflat.sum() + smooth))
 
 
-#def dice_coeff(input, target):
-#    """Dice coeff for batches"""
-#    if input.is_cuda:
-#        s = Variable(torch.FloatTensor(1).cuda().zero_())
-#    else:
-#        s = Variable(torch.FloatTensor(1).zero_())#
-
-#    for i, c in enumerate(zip(input, target)):
-#        s = s + DiceCoeff().forward(c[0], c[1])
-
-#    return s / (i+1)
 
 
 class DiceLoss(_Loss):
     def forward(self, input, target):
         return dice_loss(input,target)
-#        return 1 - dice_coeff(F.sigmoid(input), target)
