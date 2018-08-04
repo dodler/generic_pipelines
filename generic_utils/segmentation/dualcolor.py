@@ -104,9 +104,9 @@ class Gamma(object):
 
     def gamma(self, img):
         b, g, r = cv2.split(img)
-        b = self.single_channel_gamma(self.value, b)
-        g = self.single_channel_gamma(self.value, g)
-        r = self.single_channel_gamma(self.value, r)
+        b = self.single_channel_gamma(b)
+        g = self.single_channel_gamma(g)
+        r = self.single_channel_gamma(r)
         return cv2.merge([b, g, r])
 
     def __call__(self, *inputs):
