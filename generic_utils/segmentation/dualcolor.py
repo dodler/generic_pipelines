@@ -81,7 +81,7 @@ class SingleChannelGamma(object):
         self.value = value
 
     def __call__(self, img):
-        return (np.power(img, 1.0 / self.value) * 255).astype(np.uint8)
+        return (np.power(img / 255.0, 1.0 / self.value) * 255).astype(np.uint8)
 
 
 class Gamma(object):
