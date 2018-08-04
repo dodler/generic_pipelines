@@ -110,7 +110,7 @@ class Gamma(object):
         return cv2.merge([b, g, r])
 
     def __call__(self, *inputs):
-        return self.gamma(inputs[0], self.value), inputs[1]
+        return self.gamma(inputs[0]), inputs[1]
 
 
 class Contrast(object):
