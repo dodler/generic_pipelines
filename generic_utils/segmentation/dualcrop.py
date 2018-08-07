@@ -14,12 +14,12 @@ class DualPad(DualTransformer):
 
     def transform(self, img, how):
         p = self.padding
-        return cv2.copyMakeBorder(img, p, p, p, p, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        return cv2.copyMakeBorder(img, p, p, p, p, cv2.BORDER_REFLECT_101)
 
 
 class DualCrop(DualTransformer):
     '''
-    random crop for squared images and masks
+    crop for squared images and masks
     '''
 
     def __init__(self, size):
@@ -27,12 +27,9 @@ class DualCrop(DualTransformer):
         super().__init__()
 
     def __call__(self, img, msk):
-        if random.random() > 0.5:
-            x = random.randint(0, img.shape[0] - self.size)
-            y = random.randint(0, img.shape[0] - self.size)
-            return img[x:(x + self.size), y:(y + self.size), :], msk[x:(x + self.size), y:(y + self.size)]
-        else:
-            return img, msk
+        x = random.randint(0, img.shape[0] - self.size)
+        y = random.randint(0, img.shape[0] - self.size)
+        return img[x:(x + self.size), y:(y + self.size), :], msk[x:(x + self.size), y:(y + self.size)]
 
 
 def rotate_padded(image, angle, padding):
