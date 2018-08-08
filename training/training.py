@@ -96,7 +96,7 @@ class Trainer(object):
         print()
         self.scheduler.step(losses.avg)
 
-        if self.is_best(losses.avg) and self.epoch_num % 10 == 0:
+        if self.is_best(losses.avg) and self.epoch_num % 3 == 0:
             self.save_checkpoint(model.state_dict(), self.get_checkpoint_name(losses.avg))
 
         self.epoch_num += 1

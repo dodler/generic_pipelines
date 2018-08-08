@@ -1,3 +1,7 @@
+import torch.nn as nn
+
+from models.segmentation.unet import DecoderBlockLinkNet
+
 
 class LinkNet34(nn.Module):
     def __init__(self, num_classes=1, num_channels=3, pretrained=True):
