@@ -1,7 +1,6 @@
-import shutil
 import time
-import numpy as np
 
+import numpy as np
 import torch
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import ReduceLROnPlateau

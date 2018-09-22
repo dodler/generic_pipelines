@@ -10,6 +10,7 @@ class GenericXYDataset(object):
 
     def __init__(self, transform,
                  xy_paths_provider,
+                 split=True,
                  x_reader=PillowReader(), y_reader=PillowReader()):
         super().__init__()
 
@@ -23,7 +24,13 @@ class GenericXYDataset(object):
             X.append(x_path)
             y.append(y_path)
 
-        self.train_x, self.val_x, self.train_y, self.val_y = train_test_split(X, y)
+        if split:
+            self.train_x, self.val_x, self.train_y, self.val_y = train_test_split(X, y)
+        else:
+            self.train_x = X
+            self.train_y = y
+            self.val_x = []
+            self.val_y = []
 
         self.transform = transform
         self.x_cache = {}
