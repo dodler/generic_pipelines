@@ -8,10 +8,19 @@ from generic_utils.output_watchers import ClassificationWatcher
 from generic_utils.utils import AverageMeter
 from generic_utils.visualization.visualization import VisdomValueWatcher
 
-VAL_LOSS = 'val loss'
-VAL_ACC = 'val metric'
-TRAIN_ACC_OUT = 'train metric'
-TRAIN_LOSS_OUT = 'train loss'
+import logging as l
+
+logFormatter = l.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+logger = l.getLogger()
+logger.setLevel(l.DEBUG)
+
+fileHandler = l.FileHandler('log.txt')
+fileHandler.setFormatter(logFormatter)
+logger.addHandler(fileHandler)
+
+consoleHandler = l.StreamHandler()
+consoleHandler.setFormatter(logFormatter)
+logger.addHandler(consoleHandler)
 
 
 class Trainer(object):
@@ -42,6 +51,8 @@ class Trainer(object):
         self.epoch_train_losses = []
         self.epoch_train_metrics = []
 
+        self.full_history = {}
+
     def set_output_watcher(self, output_watcher):
         self.output_watcher = output_watcher
 
@@ -54,8 +65,6 @@ class Trainer(object):
         torch.save(state, name)
 
     def get_checkpoint_name(self, loss):
-        print(loss)
-        # return self.base_checkpoint_name + '_loss_' + str(loss) + '.pth.tar'
         return self.base_checkpoint_name + '_best.pth.tar'
 
     def is_best(self, avg_loss):
@@ -89,23 +98,14 @@ class Trainer(object):
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
 
+                self.log_full_history(loss=loss,metric=metric_val)
+
                 self.watcher.display_every_iter(batch_idx, input_var, target, output)
 
             batch_time.update(time.time() - end)
             end = time.time()
 
-        print('\rValidation: [{0}/{1}]\t'
-              'ETA: {time:.0f}/{eta:.0f} s\t'
-              'loss {loss.avg:.4f}\t'
-              'metric {acc.avg:.4f}\t'.format(
-            batch_idx, len(val_loader), eta=batch_time.avg * len(val_loader),
-            time=batch_time.sum, loss=losses, acc=metrics), end='')
-
-        self.update_val_epoch_stat(losses.avg, metrics.avg)
-
-        self.watcher.log_value(VAL_ACC, metrics.avg)
-        self.watcher.log_value(VAL_LOSS, losses.avg)
-        print()
+        self.log_epoch(batch_idx, batch_time, losses, metrics, val_loader)
         self.scheduler.step(losses.avg)
 
         if self.is_best(losses.avg):
@@ -115,17 +115,26 @@ class Trainer(object):
         self.epoch_num += 1
         return losses.avg, metrics.avg
 
+    def log_epoch(self, batch_idx, batch_time, losses, metrics, val_loader):
+        logger.debug('\rValidation: [{0}/{1}]\t'
+                     'ETA: {time:.0f}/{eta:.0f} s\t'
+                     'loss {loss.avg:.4f}\t'
+                     'metric {acc.avg:.4f}\t'.format(
+            batch_idx, len(val_loader), eta=batch_time.avg * len(val_loader),
+            time=batch_time.sum, loss=losses, acc=metrics), end='')
+        self.update_val_epoch_stat(losses.avg, metrics.avg)
+        self.watcher.log_metric_value(self.epoch_train_metrics[self.epoch_num],
+                                      self.epoch_val_metrics[self.epoch_num], self.model_name)
+        self.watcher.log_loss_value(self.epoch_train_losses[self.epoch_num],
+                                    self.epoch_val_losses[self.epoch_num], self.model_name)
+
     def update_train_epoch_stats(self, loss, metric):
         self.epoch_train_losses.append(loss)
         self.epoch_train_metrics.append(metric)
 
     def train(self, train_loader, model, epoch):
-        batch_time = AverageMeter()
-        data_time = AverageMeter()
-        losses = AverageMeter()
-        acc = AverageMeter()
+        batch_time, data_time, losses, acc = AverageMeter(), AverageMeter(), AverageMeter(), AverageMeter()
 
-        # switch to train mode
         model.train()
 
         end = time.time()
@@ -147,9 +156,8 @@ class Trainer(object):
                 losses.update(loss.item())
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
                 acc.update(metric_val)
-                self.watcher.display_every_iter(batch_idx, input_var, target, output)
+                self.log_full_history(loss=loss,metric=metric_val)
 
-            # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
 
@@ -162,7 +170,11 @@ class Trainer(object):
             time=batch_time.sum, data_time=data_time, loss=losses, acc=acc))
 
         self.update_train_epoch_stats(losses.avg, acc.avg)
-
-        self.watcher.log_value(TRAIN_ACC_OUT, metric_val)
-        self.watcher.log_value(TRAIN_LOSS_OUT, loss.item())
         return losses.avg, acc.avg
+
+    def log_full_history(self, **kwargs):
+        for k in kwargs.keys():
+            if k in self.full_history.keys():
+                self.full_history[k].append(kwargs[k])
+            else:
+                self.full_history[k] = [kwargs[k]]

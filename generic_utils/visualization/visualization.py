@@ -9,7 +9,7 @@ from generic_utils.visualization.visdom import FirstImage, ImageByIndex
 
 class VisdomValueWatcher(object):
     def __init__(self, env_name='main',
-                 in_x_watcher = ImageByIndex(), in_y_watcher=ImageByIndex(),
+                 in_x_watcher=ImageByIndex(), in_y_watcher=ImageByIndex(),
                  prediction_watcher=ImageByIndex()):
         self._watchers = {}
         self._wins = {}
@@ -93,11 +93,11 @@ class VisdomValueWatcher(object):
             self.display_and_add(img, title, key)
 
     def display_every_iter(self, iter_num, X, y, prediction):
-        if iter_num%  self.every_iter_n == 0:
-            index = random.randint(0, X.size()[0]-1)
+        if iter_num % self.every_iter_n == 0:
+            index = random.randint(0, X.size()[0] - 1)
             self.display_and_add(self.in_x_watcher(X, index), 'source x', 'x')
             self.display_and_add(self.in_y_watcher(y, index), 'source y', 'y')
-            self.display_and_add(self.prediction_watcher(prediction, index),'prediction', 'pred')
+            self.display_and_add(self.prediction_watcher(prediction, index), 'prediction', 'pred')
 
     def get_vis(self):
         return self._vis
@@ -111,6 +111,12 @@ class VisdomValueWatcher(object):
         if output:
             self.output(name)
 
+    def log_loss_value(self, train_loss, val_loss, model_name=""):
+        self.log_value('loss_' + model_name, (train_loss, val_loss))
+
+    def log_metric_value(self, train_metric, val_metric, model_name=""):
+        self.log_value('metric_' + model_name, (train_metric, val_metric))
+
     def output_all(self):
         for name in self._wins.keys():
             self.output(name)
@@ -123,7 +129,7 @@ class VisdomValueWatcher(object):
     def output(self, name):
         if name in self._wins.keys():
 
-            y = self.movingaverage(self._watchers[name], 20)
+            y = np.array(self._watchers[name])
             x = np.array(range(len(y)))
 
             self._vis.line(Y=y, X=x,
