@@ -6,3 +6,4 @@ opencv-python==3.4.0.12
 visdom==0.1.7
 torchvision=0.2.1
 pydensecrf==1.0rc2
+tqdm

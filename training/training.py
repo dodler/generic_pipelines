@@ -8,6 +8,8 @@ from generic_utils.output_watchers import ClassificationWatcher
 from generic_utils.utils import AverageMeter
 from generic_utils.visualization.visualization import VisdomValueWatcher
 
+from tqdm import *
+
 import logging as l
 
 logFormatter = l.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
@@ -86,7 +88,7 @@ class Trainer(object):
         model.eval()
 
         end = time.time()
-        for batch_idx, (input, target) in enumerate(val_loader):
+        for batch_idx, (input, target) in tqdm(enumerate(val_loader)):
             with torch.no_grad():
                 input_var = input.to(self.device)
                 target_var = target.to(self.device)
@@ -97,6 +99,8 @@ class Trainer(object):
                 losses.update(loss.item())
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
+
+                self.watch_output(output)
 
                 self.log_full_history(loss=loss,metric=metric_val)
 
@@ -138,7 +142,7 @@ class Trainer(object):
         model.train()
 
         end = time.time()
-        for batch_idx, (input, target) in enumerate(train_loader):
+        for batch_idx, (input, target) in tqdm(enumerate(train_loader)):
             data_time.update(time.time() - end)
 
             input_var = input.to(self.device)
@@ -153,6 +157,7 @@ class Trainer(object):
             self.optimizer.step()
 
             with torch.no_grad():
+                self.watch_output(output)
                 losses.update(loss.item())
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
                 acc.update(metric_val)
@@ -178,3 +183,7 @@ class Trainer(object):
                 self.full_history[k].append(kwargs[k])
             else:
                 self.full_history[k] = [kwargs[k]]
+
+    def watch_output(self, output):
+        if output is not None and self.output_watcher is not None:
+            self.output_watcher(output)
