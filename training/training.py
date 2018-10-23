@@ -95,13 +95,12 @@ class Trainer(object):
                 target_var = target.to(self.device)
 
                 output = model(input_var)
+                loss_scalar = loss.item()
 
                 loss = self.criterion(output, target_var)
-                losses.update(loss.item())
+                losses.update(loss_scalar)
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
-
-                loss_scalar = loss.item().cpu().detach().numpy()
 
                 self.watch_output(input, output)
                 self.log_full_history(loss=loss_scalar, metric=metric_val)
@@ -161,7 +160,7 @@ class Trainer(object):
 
             with torch.no_grad():
                 self.watch_output(input, output)
-                loss_scalar = loss.item().cpu().detach().numpy()
+                loss_scalar = loss.item()
                 losses.update(loss_scalar)
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
                 acc.update(metric_val)
