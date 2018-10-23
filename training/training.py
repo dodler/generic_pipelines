@@ -101,10 +101,12 @@ class Trainer(object):
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
 
+                loss_scalar = loss.item().cpu().detach().numpy()
+
                 self.watch_output(input, output)
-                self.log_full_history(loss=loss,metric=metric_val)
+                self.log_full_history(loss=loss_scalar, metric=metric_val)
                 tqdm_val_loader.set_description('val loss:%s, val metric: %s' %
-                                                    (str(loss), str(metric_val)))
+                                                (str(loss_scalar), str(metric_val)))
 
             batch_time.update(time.time() - end)
             end = time.time()
@@ -159,13 +161,13 @@ class Trainer(object):
 
             with torch.no_grad():
                 self.watch_output(input, output)
-                losses.update(loss.item())
+                loss_scalar = loss.item().cpu().detach().numpy()
+                losses.update(loss_scalar)
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
                 acc.update(metric_val)
-                self.log_full_history(loss=loss,metric=metric_val)
+                self.log_full_history(loss=loss, metric=metric_val)
                 train_tqdm_iterator.set_description('train loss:%s, train metric: %s' %
-                                                    (str(loss), str(metric_val)))
-
+                                                    (str(loss_scalar), str(metric_val)))
 
             batch_time.update(time.time() - end)
             end = time.time()
