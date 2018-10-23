@@ -88,7 +88,8 @@ class Trainer(object):
         model.eval()
 
         end = time.time()
-        for batch_idx, (input, target) in tqdm(enumerate(val_loader)):
+        tqdm_val_loader = tqdm(enumerate(val_loader))
+        for batch_idx, (input, target) in tqdm_val_loader:
             with torch.no_grad():
                 input_var = input.to(self.device)
                 target_var = target.to(self.device)
@@ -101,10 +102,9 @@ class Trainer(object):
                 metrics.update(metric_val)
 
                 self.watch_output(input, output)
-
                 self.log_full_history(loss=loss,metric=metric_val)
-
-                self.watcher.display_every_iter(batch_idx, input_var, target, output)
+                tqdm_val_loader.set_description('val loss:%s, val metric: %s' %
+                                                    (str(loss), str(metric_val)))
 
             batch_time.update(time.time() - end)
             end = time.time()
@@ -142,7 +142,8 @@ class Trainer(object):
         model.train()
 
         end = time.time()
-        for batch_idx, (input, target) in tqdm(enumerate(train_loader)):
+        train_tqdm_iterator = tqdm(enumerate(train_loader))
+        for batch_idx, (input, target) in train_tqdm_iterator:
             data_time.update(time.time() - end)
 
             input_var = input.to(self.device)
@@ -162,6 +163,9 @@ class Trainer(object):
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
                 acc.update(metric_val)
                 self.log_full_history(loss=loss,metric=metric_val)
+                train_tqdm_iterator.set_description('train loss:%s, train metric: %s' %
+                                                    (str(loss), str(metric_val)))
+
 
             batch_time.update(time.time() - end)
             end = time.time()
