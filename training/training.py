@@ -100,7 +100,7 @@ class Trainer(object):
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
 
-                self.watch_output(output)
+                self.watch_output(input, output)
 
                 self.log_full_history(loss=loss,metric=metric_val)
 
@@ -157,7 +157,7 @@ class Trainer(object):
             self.optimizer.step()
 
             with torch.no_grad():
-                self.watch_output(output)
+                self.watch_output(input, output)
                 losses.update(loss.item())
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
                 acc.update(metric_val)
@@ -184,6 +184,6 @@ class Trainer(object):
             else:
                 self.full_history[k] = [kwargs[k]]
 
-    def watch_output(self, output):
+    def watch_output(self, input, output):
         if output is not None and self.output_watcher is not None:
-            self.output_watcher(output)
+            self.output_watcher(input, output)
