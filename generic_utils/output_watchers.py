@@ -39,16 +39,16 @@ class DisplayImage:
         self._vis = visdom.Visdom(env=env_name)
         self._vis.delete_env(env_name)
 
-    def _display(self, img_batch, key):
-        if key in self.wins.keys():
+    def _display(self, img_batch, caption):
+        if caption in self.wins.keys():
             self._vis.images(img_batch[:self.display_amount],
                              nrow=self.nrow,
-                             win = self.wins[key],
-                             opts=dict(caption='Input'))
+                             win = self.wins[caption],
+                             opts=dict(caption=caption))
         else:
-            self.wins[key] = self._vis.images(img_batch[:self.display_amount],
+            self.wins[caption] = self._vis.images(img_batch[:self.display_amount],
                              nrow=self.nrow,
-                             opts=dict(caption='Input'))
+                             opts=dict(caption=caption))
 
     def __call__(self, input, output):
         self._display(input, 'input')
