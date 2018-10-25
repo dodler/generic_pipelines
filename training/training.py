@@ -95,9 +95,9 @@ class Trainer(object):
                 target_var = target.to(self.device)
 
                 output = model(input_var)
-                loss_scalar = loss.item()
 
                 loss = self.criterion(output, target_var)
+                loss_scalar = loss.item()
                 losses.update(loss_scalar)
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
