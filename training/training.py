@@ -121,12 +121,6 @@ class Trainer(object):
         return losses.avg, metrics.avg
 
     def log_epoch(self, batch_idx, batch_time, losses, metrics, val_loader):
-        logger.debug('\rValidation: [{0}/{1}]\t'
-                     'ETA: {time:.0f}/{eta:.0f} s\t'
-                     'loss {loss.avg:.4f}\t'
-                     'metric {acc.avg:.4f}\t'.format(
-            batch_idx, len(val_loader), eta=batch_time.avg * len(val_loader),
-            time=batch_time.sum, loss=losses, acc=metrics), end='')
         self.update_val_epoch_stat(losses.avg, metrics.avg)
         self.watcher.log_metric_value(self.epoch_train_metrics[self.epoch_num],
                                       self.epoch_val_metrics[self.epoch_num], self.model_name)
