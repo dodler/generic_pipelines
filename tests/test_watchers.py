@@ -21,5 +21,5 @@ class TestWatcher(unittest.TestCase):
         watcher(self.test_input, self.test_output)
         watcher(self.test_input, self.test_output)
         watcher(self.test_input, self.test_output)
-
+        watcher.close_windows()
 

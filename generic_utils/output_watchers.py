@@ -33,23 +33,27 @@ class RegressionWatcher(object):
 
 class DisplayImage:
     def __init__(self, env_name, display_amount, nrow=2):
+        self.env_name = env_name
         self.nrow = nrow
-        self.wins = {}
+        self._wins = {}
         self.display_amount = display_amount
         self._vis = visdom.Visdom(env=env_name)
-        self._vis.delete_env(env_name)
 
     def _display(self, img_batch, caption):
-        if caption in self.wins.keys():
+        if caption in self._wins.keys():
             self._vis.images(img_batch[:self.display_amount],
                              nrow=self.nrow,
-                             win = self.wins[caption],
+                             win = self._wins[caption],
                              opts=dict(caption=caption))
         else:
-            self.wins[caption] = self._vis.images(img_batch[:self.display_amount],
-                             nrow=self.nrow,
-                             opts=dict(caption=caption))
+            self._wins[caption] = self._vis.images(img_batch[:self.display_amount],
+                                                   nrow=self.nrow,
+                                                   opts=dict(caption=caption))
 
     def __call__(self, input, output):
         self._display(input, 'input')
         self._display(output, 'output')
+
+    def close_windows(self):
+        for k in self._wins.keys():
+            self._vis.close(self._wins[k])
