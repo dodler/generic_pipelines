@@ -185,4 +185,4 @@ class Trainer(object):
 
     def watch_output(self, input, target, output):
         if output is not None and self.output_watcher is not None:
-            # self.output_watcher(input, target, output)
+            self.output_watcher(input, target, output)
