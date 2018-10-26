@@ -102,7 +102,7 @@ class Trainer(object):
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
 
-                self.watch_output(input, output)
+                self.watch_output(input, target, output)
                 self.log_full_history(loss=loss_scalar, metric=metric_val)
                 tqdm_val_loader.set_description('val loss:%s, val metric: %s' %
                                                 (str(loss_scalar), str(metric_val)))
@@ -153,7 +153,7 @@ class Trainer(object):
             self.optimizer.step()
 
             with torch.no_grad():
-                self.watch_output(input, output)
+                self.watch_output(input, target, output)
                 loss_scalar = loss.item()
                 losses.update(loss_scalar)
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion

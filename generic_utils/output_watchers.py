@@ -50,8 +50,9 @@ class DisplayImage:
                                                    nrow=self.nrow,
                                                    opts=dict(caption=caption))
 
-    def __call__(self, input, output):
+    def __call__(self, input, target, output):
         self._display(input, 'input')
+        self._display(target, 'target')
         self._display(output, 'output')
 
     def close_windows(self):
