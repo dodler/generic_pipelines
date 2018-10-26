@@ -183,6 +183,6 @@ class Trainer(object):
             else:
                 self.full_history[k] = [kwargs[k]]
 
-    def watch_output(self, input, output):
+    def watch_output(self, input, target, output):
         if output is not None and self.output_watcher is not None:
-            self.output_watcher(input, output)
+            self.output_watcher(input, target, output)
