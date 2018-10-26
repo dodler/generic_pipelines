@@ -40,6 +40,10 @@ class DisplayImage:
         self._vis = visdom.Visdom(env=env_name)
 
     def _display(self, img_batch, caption):
+
+        if len(img_batch.shape) == 3:
+            img_batch = img_batch.unsqueeze(1)
+
         if caption in self._wins.keys():
             self._vis.images(img_batch[:self.display_amount],
                              nrow=self.nrow,

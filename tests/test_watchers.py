@@ -13,9 +13,16 @@ class TestWatcher(unittest.TestCase):
         self.test_target = torch.from_numpy(np.random.normal(scale=255, size=(4, 1, 384, 384)))
         self.test_output = torch.from_numpy(np.random.normal(size=(4, 1, 384, 384)))
 
+        self.test_tensor_3dim = torch.from_numpy(np.random.normal(size=(4, 384, 384)))
+
+    def test_display_multidim(self):
+        watcher = DisplayImage('test', display_amount=2)
+        watcher(self.test_input, self.test_tensor_3dim, self.test_output)
+
+
     def test_display_image(self):
         watcher = DisplayImage('test', display_amount=2)
-        watcher(self.test_input, self.test_output)
+        watcher(self.test_input,self.test_target, self.test_output)
 
     def test_little_batch(self):
         watcher = DisplayImage('test', display_amount=8)
