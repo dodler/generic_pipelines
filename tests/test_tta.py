@@ -9,6 +9,6 @@ class TestTTA(unittest.TestCase):
         super().__init__(methodName)
         self.tta = TTA(lambda x: x)
 
-    def test_tta(self):
+    def test_tta_shape(self):
         print('testing')
         assert (4,224,224,3) == self.tta(np.random.uniform(0, 1, (224, 224, 3)).astype(np.float)).shape

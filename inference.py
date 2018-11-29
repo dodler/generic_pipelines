@@ -17,6 +17,9 @@ class TTA:
 
         rot180 = cv2.flip(x, -1, x);
 
-        return self.predict_func(np.stack([hor_flip, rot90, rot180, rot270]))
+        return self.predict_func(np.stack([hor_flip,
+                                           rot90,
+                                           rot180,
+                                           rot270]))
 
 
