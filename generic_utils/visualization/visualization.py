@@ -30,7 +30,7 @@ class VisdomValueWatcher(object):
             key = title
 
         if key in self.wins.keys():
-            self._vis.text(text, opts=dict(title=title),)
+            self._vis.text(text, opts=dict(title=title),win=self.wins[key])
         else:
             self.wins[key] = self._vis.text(text, opts=dict(title=title))
 
