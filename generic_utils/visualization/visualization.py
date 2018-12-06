@@ -25,6 +25,16 @@ class VisdomValueWatcher(object):
         self.wins = {}
         self.every_iter_n = 10
 
+    def text_and_add(self, text, title, key=None):
+        if key is None:
+            key = title
+
+        if key in self.wins.keys():
+            self._vis.text(text, opts=dict(title=title),)
+        else:
+            self.wins[key] = self._vis.text(text, opts=dict(title=title))
+
+
     def display_and_add(self, img, title, key=None):
         if key is None:
             key = title
