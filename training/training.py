@@ -43,7 +43,7 @@ class Trainer(object):
         self.watcher = VisdomValueWatcher(model_name)
         self.output_watcher = ClassificationWatcher(self.watcher)
         self.optimizer = optimizer
-        self.scheduler = ReduceLROnPlateau(optimizer, patience=5, eta_min=1e-5, T_max=1e6)
+        self.scheduler = ReduceLROnPlateau(optimizer, patience=5, verbose=True)
         self.best_loss = np.inf
         self.model_name = model_name
         self.device = device
