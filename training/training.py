@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 import torch
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 
 from generic_utils.output_watchers import ClassificationWatcher
 from generic_utils.utils import AverageMeter
@@ -43,7 +43,7 @@ class Trainer(object):
         self.watcher = VisdomValueWatcher(model_name)
         self.output_watcher = ClassificationWatcher(self.watcher)
         self.optimizer = optimizer
-        self.scheduler = CosineAnnealingLR(optimizer, eta_min=1e-5, T_max=1e6)
+        self.scheduler = ReduceLROnPlateau(optimizer, patience=5, eta_min=1e-5, T_max=1e6)
         self.best_loss = np.inf
         self.model_name = model_name
         self.device = device
