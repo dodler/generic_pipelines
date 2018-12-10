@@ -56,12 +56,11 @@ class Trainer(object):
         self.model = model
 
         self.logger = create_logger(model_name + '.log')
-        self.writer = SummaryWriter(log_dir='/var/log/runs/')
+        self.writer = SummaryWriter(log_dir='/tmp/runs/')
         self.counters = {}
 
         if dummy_input is not None:
             self._plot_graph(dummy_input)
-
 
     @staticmethod
     def save_checkpoint(state, name):
@@ -106,17 +105,17 @@ class Trainer(object):
 
             self._log_data(input, target, output, 'val_it_data')
             self._log_metric({
-                    'metric': metric_val,
-                    'loss': loss_scalar,
-                    'batch_time': time.time() - end
+                'metric': metric_val,
+                'loss': loss_scalar,
+                'batch_time': time.time() - end
             }, 'val_it_metric')
 
             end = time.time()
 
         self._log_metric({
-            'metric':metrics.avg,
-            'loss':losses.avg,
-            'batch_time':batch_time.avg
+            'metric': metrics.avg,
+            'loss': losses.avg,
+            'batch_time': batch_time.avg
         }, 'val_epoch_metric')
 
         self.scheduler.step(losses.avg)
@@ -171,15 +170,15 @@ class Trainer(object):
                 }, 'train_it_metric')
 
         self._log_metric({
-            'metric':metric.avg,
-            'loss':losses.avg,
-            'batch_time':batch_time.avg
+            'metric': metric.avg,
+            'loss': losses.avg,
+            'batch_time': batch_time.avg
         }, 'train_epoch_metric')
         return losses.avg, metric.avg
 
     def _log_data(self, input, target, output, tag):
         it = self._get_it(tag)
-        self.writer.add_image(tag, input[:,0:2,:], it)
+        self.writer.add_image(tag, input[:, 0:3, :, :], it)
 
     def _log_metric(self, metrics_dict, tag):
         it = self._get_it(tag)
