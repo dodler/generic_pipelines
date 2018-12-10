@@ -59,6 +59,3 @@ model.to(DEVICE)
 for i in range(EPOCHS):
     trainer.train(train_loader)
     trainer.validate(val_loader)
-
-trainer.writer.close()
-trainer.writer.export_scalars_to_json("./all_scalars.json")
