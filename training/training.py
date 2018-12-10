@@ -48,7 +48,7 @@ class Trainer(object):
         self.metric = metric
         self.criterion = criterion
         self.optimizer = optimizer
-        self.scheduler = ReduceLROnPlateau(optimizer, patience=5, verbose=True)
+        self.scheduler = ReduceLROnPlateau(optimizer, patience=2, verbose=True)
         self.best_loss = np.inf
         self.model_name = model_name
         self.device = device
