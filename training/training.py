@@ -56,7 +56,7 @@ class Trainer(object):
         self.model = model
 
         self.logger = create_logger(model_name + '.log')
-        self.writer = SummaryWriter(log_dir='/var/log/')
+        self.writer = SummaryWriter(log_dir='/var/log/runs/')
         self.counters = {}
 
         if dummy_input is not None:
@@ -179,7 +179,7 @@ class Trainer(object):
 
     def _log_data(self, input, target, output, tag):
         it = self._get_it(tag)
-        self.writer.add_image(tag, input, it)
+        self.writer.add_image(tag, input[:,0:2,:], it)
 
     def _log_metric(self, metrics_dict, tag):
         it = self._get_it(tag)
