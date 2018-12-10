@@ -56,7 +56,7 @@ class Trainer(object):
         self.model = model
 
         self.logger = create_logger(model_name + '.log')
-        self.writer = SummaryWriter()
+        self.writer = SummaryWriter(log_dir='/var/log/')
         self.counters = {}
 
         if dummy_input is not None:
