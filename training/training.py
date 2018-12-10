@@ -1,33 +1,33 @@
+import logging as l
 import time
 
 import numpy as np
 import torch
-from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
-
-from generic_utils.output_watchers import ClassificationWatcher
-from generic_utils.utils import AverageMeter
-from generic_utils.visualization.visualization import VisdomValueWatcher
-
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from tqdm import *
 
-import logging as l
+from tensorboardX import SummaryWriter
+from generic_utils.utils import AverageMeter
 
-logFormatter = l.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-logger = l.getLogger()
-logger.setLevel(l.DEBUG)
 
-fileHandler = l.FileHandler('log.txt')
-fileHandler.setFormatter(logFormatter)
-logger.addHandler(fileHandler)
+def create_logger(file_name):
+    logFormatter = l.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+    logger = l.getLogger()
+    logger.setLevel(l.DEBUG)
 
-consoleHandler = l.StreamHandler()
-consoleHandler.setFormatter(logFormatter)
-logger.addHandler(consoleHandler)
+    fileHandler = l.FileHandler(file_name)
+    fileHandler.setFormatter(logFormatter)
+    logger.addHandler(fileHandler)
+
+    consoleHandler = l.StreamHandler()
+    consoleHandler.setFormatter(logFormatter)
+    logger.addHandler(consoleHandler)
+    return logger
 
 
 class Trainer(object):
 
-    def __init__(self, criterion, metric, optimizer, model_name, base_checkpoint_name=None, device=0):
+    def __init__(self, criterion, metric, optimizer, model_name, model, base_checkpoint_name=None, device=0):
         '''
 
         :param watcher_env: environment for visdom
@@ -40,26 +40,17 @@ class Trainer(object):
 
         self.metric = metric
         self.criterion = criterion
-        self.watcher = VisdomValueWatcher(model_name)
-        self.output_watcher = ClassificationWatcher(self.watcher)
         self.optimizer = optimizer
         self.scheduler = ReduceLROnPlateau(optimizer, patience=5, verbose=True)
         self.best_loss = np.inf
         self.model_name = model_name
         self.device = device
         self.epoch_num = 0
-        self.epoch_val_losses = []
-        self.epoch_val_metrics = []
-        self.epoch_train_losses = []
-        self.epoch_train_metrics = []
+        self.model = model
 
-        self.full_history = {}
-
-    def set_output_watcher(self, output_watcher):
-        self.output_watcher = output_watcher
-
-    def get_watcher(self):
-        return self.watcher
+        self.logger = create_logger(model_name + '.log')
+        self.writer = SummaryWriter()
+        self.counters = {}
 
     @staticmethod
     def save_checkpoint(state, name):
@@ -76,16 +67,12 @@ class Trainer(object):
 
         return best
 
-    def update_val_epoch_stat(self, loss, metric):
-        self.epoch_val_losses.append(loss)
-        self.epoch_val_metrics.append(metric)
-
-    def validate(self, val_loader, model):
+    def validate(self, val_loader):
         batch_time = AverageMeter()
         losses = AverageMeter()
         metrics = AverageMeter()
 
-        model.eval()
+        self.model.eval()
 
         end = time.time()
         tqdm_val_loader = tqdm(enumerate(val_loader))
@@ -94,47 +81,49 @@ class Trainer(object):
                 input_var = input.to(self.device)
                 target_var = target.to(self.device)
 
-                output = model(input_var)
+                output = self.model(input_var)
 
                 loss = self.criterion(output, target_var)
                 loss_scalar = loss.item()
                 losses.update(loss_scalar)
                 metric_val = self.metric(output, target_var)
                 metrics.update(metric_val)
-
-                self.watch_output(input, target, output)
-                self.log_full_history(loss=loss_scalar, metric=metric_val)
                 tqdm_val_loader.set_description('val loss:%s, val metric: %s' %
                                                 (str(loss_scalar), str(metric_val)))
 
             batch_time.update(time.time() - end)
+
+            self._log_data(input, target, output, 'val_it_data')
+            self._log_metric({
+                    'metric': metric_val,
+                    'loss': loss_scalar,
+                    'batch_time': time.time() - end
+            }, 'val_it_metric')
+
             end = time.time()
 
-        self.log_epoch(batch_idx, batch_time, losses, metrics, val_loader)
+        self._log_metric({
+            'metric':metrics.avg,
+            'loss':losses.avg,
+            'batch_time':batch_time.avg
+        }, 'val_epoch_metric')
+
         self.scheduler.step(losses.avg)
 
         if self.is_best(losses.avg):
-            self.save_checkpoint(model.state_dict(), self.get_checkpoint_name(losses.avg))
-            # pickle.dump(model, open(self.get_checkpoint_name(losses.avg), 'wb'))
+            self.save_checkpoint(self.model.state_dict(), self.get_checkpoint_name(losses.avg))
 
         self.epoch_num += 1
         return losses.avg, metrics.avg
-
-    def log_epoch(self, batch_idx, batch_time, losses, metrics, val_loader):
-        self.update_val_epoch_stat(losses.avg, metrics.avg)
-        self.watcher.log_metric_value(self.epoch_train_metrics[self.epoch_num],
-                                      self.epoch_val_metrics[self.epoch_num], self.model_name)
-        self.watcher.log_loss_value(self.epoch_train_losses[self.epoch_num],
-                                    self.epoch_val_losses[self.epoch_num], self.model_name)
 
     def update_train_epoch_stats(self, loss, metric):
         self.epoch_train_losses.append(loss)
         self.epoch_train_metrics.append(metric)
 
-    def train(self, train_loader, model, epoch):
-        batch_time, data_time, losses, acc = AverageMeter(), AverageMeter(), AverageMeter(), AverageMeter()
+    def train(self, train_loader):
+        batch_time, data_time, losses, metric = AverageMeter(), AverageMeter(), AverageMeter(), AverageMeter()
 
-        model.train()
+        self.model.train()
 
         end = time.time()
         train_tqdm_iterator = tqdm(enumerate(train_loader))
@@ -144,7 +133,7 @@ class Trainer(object):
             input_var = input.to(self.device)
             target_var = target.to(self.device)
 
-            output = model(input_var)
+            output = self.model(input_var)
 
             loss = self.criterion(output, target_var)
 
@@ -153,36 +142,51 @@ class Trainer(object):
             self.optimizer.step()
 
             with torch.no_grad():
-                self.watch_output(input, target, output)
                 loss_scalar = loss.item()
                 losses.update(loss_scalar)
                 metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
-                acc.update(metric_val)
-                self.log_full_history(loss=loss, metric=metric_val)
+                metric.update(metric_val)
                 train_tqdm_iterator.set_description('train loss:%s, train metric: %s' %
                                                     (str(loss_scalar), str(metric_val)))
 
-            batch_time.update(time.time() - end)
-            end = time.time()
+                batch_time.update(time.time() - end)
+                end = time.time()
 
-        logger.debug('\rEpoch: {0}  [{1}/{2}]\t'
-                     'ETA: {time:.0f}/{eta:.0f} s\t'
-                     'data loading: {data_time.val:.3f} s\t'
-                     'loss {loss.avg:.4f}\t'
-                     'metric {acc.avg:.4f}\t'.format(
-            epoch, batch_idx, len(train_loader), eta=batch_time.avg * len(train_loader),
-            time=batch_time.sum, data_time=data_time, loss=losses, acc=acc))
+                self._log_data(input, target, output, 'train_it_data')
+                self._log_metric({
+                    'metric': metric_val,
+                    'loss': loss_scalar,
+                    'batch_time': time.time() - end
+                }, 'train_it_metric')
 
-        self.update_train_epoch_stats(losses.avg, acc.avg)
-        return losses.avg, acc.avg
+        self._log_metric({
+            'metric':metric.avg,
+            'loss':losses.avg,
+            'batch_time':batch_time.avg
+        }, 'train_epoch_metric')
+        return losses.avg, metric.avg
 
-    def log_full_history(self, **kwargs):
-        for k in kwargs.keys():
-            if k in self.full_history.keys():
-                self.full_history[k].append(kwargs[k])
-            else:
-                self.full_history[k] = [kwargs[k]]
+    def _log_data(self, input, target, output, tag):
+        it = self._get_it(tag)
+        self.writer.add_image(tag, input, it)
 
-    def watch_output(self, input, target, output):
-        if output is not None and self.output_watcher is not None:
-            self.output_watcher(input, target, output)
+    def _log_metric(self, metrics_dict, tag):
+        it = self._get_it(tag)
+
+        result = 'tag: ' + tag
+        for k in metrics_dict:
+            self.writer.add_scalar(tag + '_' + k, metrics_dict[k], it)
+            result += ' ,' + k + '=' + str(metrics_dict[k])
+
+        result += ', iteration ' + str(it)
+
+        self.logger.debug(result)
+
+    def _get_it(self, tag):
+        if tag in self.counters.keys():
+            result = self.counters[tag]
+            self.counters[tag] += 1
+            return result
+        else:
+            self.counters[tag] = 0
+            return 0
