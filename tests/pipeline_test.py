@@ -49,7 +49,7 @@ EPOCHS = 20
 train_ds = TestDataset(2400)
 val_ds = TestDataset(800)
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
-trainer = Trainer(myloss, mymetric, optimizer, MODEL_NAME, model, None, DEVICE)
+trainer = Trainer(myloss, mymetric, optimizer, MODEL_NAME, model, None, DEVICE, torch.zeros((1,3,24,24)))
 
 train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, num_workers=WORKERS)
 val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, num_workers=WORKERS)

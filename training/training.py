@@ -27,7 +27,14 @@ def create_logger(file_name):
 
 class Trainer(object):
 
-    def __init__(self, criterion, metric, optimizer, model_name, model, base_checkpoint_name=None, device=0):
+    def __init__(self, criterion,
+                 metric,
+                 optimizer,
+                 model_name,
+                 model,
+                 base_checkpoint_name=None,
+                 device=0,
+                 dummy_input=None):
         '''
 
         :param watcher_env: environment for visdom
@@ -51,6 +58,10 @@ class Trainer(object):
         self.logger = create_logger(model_name + '.log')
         self.writer = SummaryWriter()
         self.counters = {}
+
+        if dummy_input is not None:
+            self._plot_graph(dummy_input)
+
 
     @staticmethod
     def save_checkpoint(state, name):
@@ -190,3 +201,6 @@ class Trainer(object):
         else:
             self.counters[tag] = 0
             return 0
+
+    def _plot_graph(self, dummy_input):
+        self.writer.add_graph(self.model, dummy_input)
