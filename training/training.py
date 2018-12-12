@@ -178,7 +178,8 @@ class Trainer(object):
 
     def _log_data(self, input, target, output, tag):
         it = self._get_it(tag)
-        self.writer.add_image(tag, input[:, 0:3, :, :], it)
+        if it % 100 == 0:
+            self.writer.add_image(tag, input[:, 0:3, :, :], it)
 
     def _log_metric(self, metrics_dict, tag):
         it = self._get_it(tag)
