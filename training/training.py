@@ -19,9 +19,6 @@ def create_logger(file_name):
     fileHandler.setFormatter(logFormatter)
     logger.addHandler(fileHandler)
 
-    consoleHandler = l.StreamHandler()
-    consoleHandler.setFormatter(logFormatter)
-    logger.addHandler(consoleHandler)
     return logger
 
 
