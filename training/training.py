@@ -152,6 +152,15 @@ class Trainer(object):
                                                 (str(loss_scalar), str(metric_val)))
 
             loss.backward()
+
+            for param in self.model.parameters():
+                print(param.grad.data.sum())
+
+            # start debugger
+            import pdb;
+            pdb.set_trace()
+
+
             self.optimizer.step()
 
             batch_time.update(time.time() - end)
