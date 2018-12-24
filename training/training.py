@@ -140,11 +140,10 @@ class Trainer(object):
             input_var = input.to(self.device)
             target_var = target.to(self.device)
 
-            output = self.model(input_var)
-
-            loss = self.criterion(output, target_var)
-
             self.optimizer.zero_grad()
+
+            output = self.model(input_var)
+            loss = self.criterion(output, target_var)
             loss.backward()
             self.optimizer.step()
 
