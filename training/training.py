@@ -148,23 +148,22 @@ class Trainer(object):
             loss.backward()
             self.optimizer.step()
 
-            with torch.no_grad():
-                loss_scalar = loss.item()
-                losses.update(loss_scalar)
-                metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
-                metric.update(metric_val)
-                train_tqdm_iterator.set_description('train loss:%s, train metric: %s' %
-                                                    (str(loss_scalar), str(metric_val)))
+            loss_scalar = loss.item()
+            losses.update(loss_scalar)
+            metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
+            metric.update(metric_val)
+            train_tqdm_iterator.set_description('train loss:%s, train metric: %s' %
+                                                (str(loss_scalar), str(metric_val)))
 
-                batch_time.update(time.time() - end)
-                end = time.time()
+            batch_time.update(time.time() - end)
+            end = time.time()
 
-                self._log_data(input, target, output, 'train_it_data')
-                self._log_metric({
-                    'metric': metric_val,
-                    'loss': loss_scalar,
-                    'batch_time': time.time() - end
-                }, 'train_it_metric')
+            self._log_data(input, target, output, 'train_it_data')
+            self._log_metric({
+                'metric': metric_val,
+                'loss': loss_scalar,
+                'batch_time': time.time() - end
+            }, 'train_it_metric')
 
         self._log_metric({
             'metric': metric.avg,
