@@ -135,6 +135,7 @@ class Trainer(object):
         end = time.time()
         train_tqdm_iterator = tqdm(enumerate(train_loader))
         for batch_idx, (input, target) in train_tqdm_iterator:
+            self.optimizer.zero_grad()
             data_time.update(time.time() - end)
 
             input_var = input.to(self.device)
@@ -149,8 +150,6 @@ class Trainer(object):
             metric.update(metric_val)
             train_tqdm_iterator.set_description('train loss:%s, train metric: %s' %
                                                 (str(loss_scalar), str(metric_val)))
-
-            self.optimizer.zero_grad()
 
             loss.backward()
             self.optimizer.step()
