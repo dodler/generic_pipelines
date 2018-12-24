@@ -144,17 +144,16 @@ class Trainer(object):
             loss = self.criterion(output, target_var)
 
             loss_scalar = loss.item()
-
-            self.optimizer.zero_grad()
-
-            loss.backward()
-            self.optimizer.step()
-
             losses.update(loss_scalar)
             metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
             metric.update(metric_val)
             train_tqdm_iterator.set_description('train loss:%s, train metric: %s' %
                                                 (str(loss_scalar), str(metric_val)))
+
+            self.optimizer.zero_grad()
+
+            loss.backward()
+            self.optimizer.step()
 
             batch_time.update(time.time() - end)
             end = time.time()
