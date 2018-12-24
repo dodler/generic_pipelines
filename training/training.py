@@ -28,7 +28,6 @@ class Trainer(object):
                  metric,
                  optimizer,
                  model_name,
-                 model,
                  base_checkpoint_name=None,
                  device=0,
                  dummy_input=None):
@@ -50,7 +49,6 @@ class Trainer(object):
         self.model_name = model_name
         self.device = device
         self.epoch_num = 0
-        self.model = model
 
         self.logger = create_logger(model_name + '.log')
         self.writer = SummaryWriter(log_dir='/tmp/runs/')
@@ -74,12 +72,12 @@ class Trainer(object):
 
         return best
 
-    def validate(self, val_loader):
+    def validate(self, val_loader, model):
         batch_time = AverageMeter()
         losses = AverageMeter()
         metrics = AverageMeter()
 
-        self.model.eval()
+        model.eval()
 
         end = time.time()
         tqdm_val_loader = tqdm(enumerate(val_loader))
@@ -88,7 +86,7 @@ class Trainer(object):
                 input_var = input.to(self.device)
                 target_var = target.to(self.device)
 
-                output = self.model(input_var)
+                output = model(input_var)
 
                 loss = self.criterion(output, target_var)
                 loss_scalar = loss.item()
@@ -118,7 +116,7 @@ class Trainer(object):
         self.scheduler.step(losses.avg)
 
         if self.is_best(losses.avg):
-            self.save_checkpoint(self.model.state_dict(), self.get_checkpoint_name(losses.avg))
+            self.save_checkpoint(model.state_dict(), self.get_checkpoint_name(losses.avg))
 
         self.epoch_num += 1
         return losses.avg, metrics.avg
@@ -127,10 +125,10 @@ class Trainer(object):
         self.epoch_train_losses.append(loss)
         self.epoch_train_metrics.append(metric)
 
-    def train(self, train_loader):
+    def train(self, train_loader, model):
         batch_time, data_time, losses, metric = AverageMeter(), AverageMeter(), AverageMeter(), AverageMeter()
 
-        self.model.train()
+        model.train()
 
         end = time.time()
         train_tqdm_iterator = tqdm(enumerate(train_loader))
@@ -141,7 +139,7 @@ class Trainer(object):
             input_var = input.to(self.device)
             target_var = target.to(self.device)
 
-            output = self.model(input_var)
+            output = model(input_var)
             loss = self.criterion(output, target_var)
 
             loss_scalar = loss.item()
@@ -197,5 +195,5 @@ class Trainer(object):
             self.counters[tag] = 0
             return 0
 
-    def _plot_graph(self, dummy_input):
-        self.writer.add_graph(self.model, dummy_input)
+    def _plot_graph(self, model, dummy_input):
+        self.writer.add_graph(model, dummy_input)
