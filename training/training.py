@@ -140,14 +140,16 @@ class Trainer(object):
             input_var = input.to(self.device)
             target_var = target.to(self.device)
 
-            self.optimizer.zero_grad()
-
             output = self.model(input_var)
             loss = self.criterion(output, target_var)
+
+            loss_scalar = loss.item()
+
+            self.optimizer.zero_grad()
+
             loss.backward()
             self.optimizer.step()
 
-            loss_scalar = loss.item()
             losses.update(loss_scalar)
             metric_val = self.metric(output, target_var)  # todo - add output dimention assertion
             metric.update(metric_val)
